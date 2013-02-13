@@ -1,0 +1,30 @@
+package model;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+
+import dao.Database;
+
+import dao.Project;
+import dto.FeedObjects;
+
+public class ProjectManager {
+
+	public ArrayList<FeedObjects> isUserExist(String _userName,
+			String _userPassw) throws Exception {
+
+//		System.out.println(this.getClass().getName() + " " + "isUserExist");
+		ArrayList<FeedObjects> feeds = null;
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			Project project = new Project();
+			feeds = project.isUserExist(connection,_userName,_userPassw);
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return feeds;
+	}
+
+}

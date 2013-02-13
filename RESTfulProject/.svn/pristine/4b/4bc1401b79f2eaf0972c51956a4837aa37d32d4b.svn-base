@@ -1,0 +1,50 @@
+package dto;
+
+public class FeedObjects {
+	
+	private String aps;
+	private String acme1;
+	/**
+	 * @return the acme1
+	 */
+	public String getAcme1() {
+	    return acme1;
+	}
+	/**
+	 * @param acme1 the acme1 to set
+	 */
+	public void setAcme1(String acme1) {
+	    this.acme1 = acme1;
+	}
+	
+	private String acme2;
+
+	/**
+	 * @return the acme2
+	 */
+	public String getAcme2() {
+	    return acme2;
+	}
+	/**
+	 * @param acme2 the acme2 to set
+	 */
+	public void setAcme2(String acme2) {
+	    this.acme2 = acme2;
+	}
+	/**
+	 * @return the aps
+	 */
+	public String getAps() {
+	    return aps;
+	}
+	/**
+	 * @param aps the aps to set
+	 */
+	public void setAps(String aps) {
+	    this.aps = aps;
+	}
+
+	
+	
+	
+}

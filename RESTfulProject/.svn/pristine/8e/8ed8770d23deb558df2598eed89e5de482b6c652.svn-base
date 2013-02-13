@@ -1,0 +1,268 @@
+package dao;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+
+import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.android.gcm.server.Message;
+import com.google.android.gcm.server.MulticastResult;
+import com.google.android.gcm.server.Sender;
+import com.notnoop.apns.APNS;
+import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.PayloadBuilder;
+
+import dto.FeedObjects;
+
+public class Project {
+
+	public ArrayList<FeedObjects> GetFeeds(Connection connection)
+			throws Exception {
+
+		System.out.println(this.getClass().getName() + " " + "GetFeeds");
+
+		/**
+		 * test APNS connectuin
+		 */
+		System.out.println(this.getClass().getName() + " "
+				+ "GetFeeds start test");
+
+		File directory = new File(
+				"/Users/vitali/Documents/Client-SIXII-workspace/RESTfulProject/resources"/* "/Users/vitali/Downloads/RESTfulProject/resources" */);
+
+		// get all the files from a directory
+
+		File[] fList = directory.listFiles();
+
+		for (File file : fList) {
+
+			System.out.println("file.getName()=" + file.getName());
+
+		}
+
+		ApnsService service = APNS
+				.newService()
+				.withCert(
+						"/Users/vitali/Downloads/RESTfulProject/resources/iphone_dev.p12",
+						"uhykh").withSandboxDestination().build();
+
+		// service.start();
+		String payload = APNS.newPayload().alertBody("Hi you!!!").build();
+
+		String token = "f0cd4a4f0743cae477399de77a8a21b375cfeb6d11bfa60d813e3b4fb930443e";
+
+		service.push(token, payload);
+
+		System.out.println(this.getClass().getName() + " "
+				+ "GetFeeds end test");
+
+		/**
+		 * end test APNS connectuin
+		 */
+
+		/**
+		 * start test android notification
+		 * 
+		 */
+		// Instance of com.android.gcm.server.Sender, that does the
+		// transmission of a Message to the Google Cloud Messaging service.
+		String SENDER_ID = "AIzaSyANIsNYV7lGBIWfIiQ1yPClId3cY-Hfu-w";
+		String ANDROID_DEVICE = /*
+								 * "APA91bEvrzIKDAmuTcDDFUxoyIQDmosa40KZ3lZz-0qBGXBL-FP0Ne5NmRBQWyum-iWiwwETDi4mYMbNPuj5izGoIPg7glIEfqp_XNY81uhG6SmJhgMnVvsa7GdiW7DuCxWqG6Nekisi81WzJz8Aeef-FRHUM35-KQ"
+								 * ;//
+								 * "APA91bEoPUEta5NTiItzrb9UjaL3j65XY_CRHFCG6-BSVmdqg8O1CB-ypaCkI9fyYDrw95cYxjJro8MoQuPuPw9HulcuMXlIgpEX8h42fePS3-sltHSyxd-8KNwl23WzebWOvAdFsBHC3rzFcTYqz62r6v8MNOTAUw"
+								 * ;//
+								 */"APA91bEoPUEta5NTiItzrb9UjaL3j65XY_CRHFCG6-BSVmdqg8O1CB-ypaCkI9fyYDrw95cYxjJro8MoQuPuPw9HulcuMXlIgpEX8h42fePS3-sltHSyxd-8KNwl23WzebWOvAdFsBHC3rzFcTYqz62r6v8MNOTAUw";// "YOUR_CAPTURED_ANDROID_DEVICE_KEY";
+
+		List<String> androidTargets = new ArrayList<String>();
+		androidTargets.add(ANDROID_DEVICE);
+
+		Sender sender = new Sender(SENDER_ID);
+		if (sender == null) {
+			System.out.println("sender==null");
+		} else {
+			System.out.println("sender != null");
+		}
+
+		// This Message object will hold the data that is being transmitted
+		// to the Android client devices. For this demo, it is a simple text
+		// string, but could certainly be a JSON object.
+		Message message = new Message.Builder()
+
+				// If multiple messages are sent using the same .collapseKey()
+				// the android target device, if it was offline during earlier
+				// message
+				// transmissions, will only receive the latest message for that
+				// key when
+				// it goes back on-line.
+				.collapseKey("test_collapseKey"/* collapseKey */)
+				.timeToLive(30).delayWhileIdle(true)
+				.addData("message", "eshq?"/* userMessage */).build();
+
+		try {
+			// use this for multicast messages. The second parameter
+			// of sender.send() will need to be an array of register ids.
+			MulticastResult result = sender.send(message, androidTargets, 1);
+
+			if (result.getResults() != null) {
+				int canonicalRegId = result.getCanonicalIds();
+				if (canonicalRegId != 0) {
+
+				}
+			} else {
+				int error = result.getFailure();
+				System.out.println("Broadcast failure: " + error);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		/**
+		 * end test android notification
+		 * 
+		 */
+
+		ArrayList<FeedObjects> feedData = new ArrayList<FeedObjects>();
+		try {
+			// String uname = request.getParameter("uname");
+			PreparedStatement ps = connection
+					.prepareStatement("SELECT userID,userNickName,userEmail  FROM sixeyeGamesUsers"/* "SELECT aps,acme1,acme2 FROM website ORDER BY id DESC" */);
+			// ps.setString(1,uname);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				FeedObjects feedObject = new FeedObjects();
+				feedObject.setParam(rs.getString("userID"));
+				feedObject.setParam1(rs.getString("userNickName"));
+				feedObject.setParam2(rs.getString("userEmail"));
+
+				// feedObject.setAps(rs.getString("aps"));
+				// feedObject.setAcme1(rs.getString("acme1"));
+				// feedObject.setAcme2(rs.getString("acme2"));
+				feedData.add(feedObject);
+			}
+			return feedData;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ArrayList<FeedObjects> isUserExist(Connection connection,
+			String _userName, String _userPassw) throws Exception {
+
+		System.out.println(this.getClass().getName() + " " + "isUserExist"
+				+ " _userName = " + _userName + " , _userPassw =" + _userPassw);
+
+		ArrayList<FeedObjects> feedData = new ArrayList<FeedObjects>();
+
+		try {
+			// String uname = request.getParameter("uname");
+			PreparedStatement ps = connection
+					.prepareStatement("SELECT UserID,userEmail,userPassw from sixeyeGamesUsers WHERE userEmail='"
+							+ _userName
+							+ "' and userPassw='"
+							+ _userPassw
+							+ "'");
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				FeedObjects feedObject = new FeedObjects();
+				feedObject.setUserid(rs.getString("UserID"));
+
+				feedData.add(feedObject);
+			}
+			return feedData;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ArrayList<FeedObjects> signUp(Connection connection,
+			String _userName, String _userPassw, String _deviceType,
+			String _deviceID, String _deviceSerialID, String _deviceDesc) throws Exception {
+
+		System.out.println(this.getClass().getName() + " signUp \n");
+
+		PreparedStatement ps = connection
+				.prepareStatement("SELECT UserID from sixeyeGamesUsers WHERE userEmail='"
+						+ _userName + "' and userPassw='" + _userPassw + "'");
+
+		ArrayList<FeedObjects> feedData = new ArrayList<FeedObjects>();
+		ResultSet rs = ps.executeQuery();
+
+		FeedObjects feedObject = null;
+
+		if (rs.isBeforeFirst()) {
+			 System.out.println(" signUp : there are records");
+
+			while (rs.next()) {
+
+				feedObject = new FeedObjects();
+				feedObject.setUserid(rs.getString("userID"));
+
+				feedData.add(feedObject);
+
+				
+				//test sixeyeGamesDevices if user exist
+				//if true : update device id
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				return feedData;
+
+			}
+
+		} else {
+			// create a new UserID
+			System.out.println(" signUp : create a new User");
+			
+			String sqlQuery="INSERT INTO MainGames.sixeyeGamesUsers VALUES(null,?,?,?) ";
+			
+			ps = connection
+					.prepareStatement(sqlQuery,PreparedStatement.RETURN_GENERATED_KEYS);
+			
+			
+			ps.setString(1, _userName);
+
+			ps.setString(2, _userName);
+
+			ps.setString(3, _userPassw);
+			
+
+			//test if  device exist
+			
+			int row=0;
+			if (row!=0) {
+				System.out.println(" signUp : created a new User");
+			} else {
+				System.out.println(" signUp : failed to create a new User");
+			}
+			try {
+				 row = ps.executeUpdate();
+			} catch (SQLException e) {
+				System.out.println("e.getMessage() = "+e.getMessage());
+			}
+
+			
+			return isUserExist(connection, _userName, _userPassw);
+		}
+
+		return null;
+	}
+
+}
