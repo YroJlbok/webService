@@ -45,6 +45,7 @@ public class Project {
 				"/Users/vitali/Documents/Client-SIXII-workspace/RESTfulProject/resources"/* "/Users/vitali/Downloads/RESTfulProject/resources" */);
 
 		// get all the files from a directory
+		// 123
 
 		File[] fList = directory.listFiles();
 
