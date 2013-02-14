@@ -10,23 +10,75 @@ import dto.FeedObjects;
 
 public class ProjectManager {
 
-	public ArrayList<FeedObjects> isUserExist(String _userName,
+	public String isUserExist(String _userName,
 			String _userPassw) throws Exception {
-
-		// System.out.println(this.getClass().getName() + " " + "isUserExist");
-		ArrayList<FeedObjects> feeds = null;
+		String result = "-1";
+		
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			Project project = new Project();
-			feeds = project.isUserExist(connection, _userName, _userPassw);
+			result = project.isUserExist(connection, _userName, _userPassw);
 
 		} catch (Exception e) {
 			throw e;
 		}
-		return feeds;
+		return result;
+	}
+	
+	
+	
+	public String logIn(String _userName,
+			String _userPassw,
+			String _userRegType ) throws Exception {
+
+		// System.out.println(this.getClass().getName() + " " + "isUserExist");
+		String result = "-1";
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			Project project = new Project();
+			result = project.logIn(connection, _userName, _userPassw, _userRegType);
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return result;
+	}
+	
+	public String signUpViaEmail(String _userName,
+			String _userPassw) throws Exception {
+
+		// System.out.println(this.getClass().getName() + " " + "isUserExist");
+		String result = "-1";
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			Project project = new Project();
+			result = project.signUpViaEmail(connection, _userName, _userPassw);
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return result;
 	}
 
+	public String getNonInvited(String _usersList) throws Exception {
+
+		// System.out.println(this.getClass().getName() + " " + "isUserExist");
+		String result = "";
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			Project project = new Project();
+			result = project.getNonInvited(connection, _usersList);
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return result;
+	}
+	
 	public ArrayList<FeedObjects> signUp(String _userName, String _userPassw,
 			String _deviceType, String _deviceID, String _deviceSerialID,
 			String _deviceDesc) throws Exception {

@@ -180,23 +180,96 @@ public class FeedService {
 		System.out.println("postXMLisUserExist  userPassw :" + _userPassw
 				+ "\n");
 
-		String feeds = null;
+		String result = "-1";
 		try {
 
-			ArrayList<FeedObjects> feedData = null;
 			ProjectManager projectManager = new ProjectManager();
-			feedData = projectManager.isUserExist(_userName, _userPassw);
-			// StringBuffer sb = new StringBuffer();
-			Gson gson = new Gson();
-			System.out.println(gson.toJson(feedData));
-			feeds = gson.toJson(feedData);
+			result = projectManager.isUserExist(_userName, _userPassw);
+			
+			
 
 		} catch (Exception e) {
 			System.out.println("postXMLisUserExist error");
 		}
-		return feeds;
+		return result;
 	}
 
+	@POST
+	@Path("/logIn")
+	// @Consumes("application/json")
+	// @Produces("application/json")
+	public String postLogIn(@FormParam("userName") String _userName,
+			@FormParam("userPassw") String _userPassw,
+			@FormParam("userRegType") String _userRegType) {
+
+		System.out.println("postXMLisUserExist  userName :" + _userName + "\n");
+
+		System.out.println("postXMLisUserExist  userPassw :" + _userPassw
+				+ "\n");
+		
+		System.out.println("postXMLisUserExist  userRegType :" + _userRegType
+				+ "\n");
+		
+		String result  = null;
+		try {			
+			ProjectManager projectManager = new ProjectManager();
+			result = projectManager.logIn(_userName, _userPassw, _userRegType);
+			// StringBuffer sb = new StringBuffer(); 
+			//Gson gson = new Gson();
+			System.out.println(result);
+			//feeds = gson.toJson(feedData);
+
+		} catch (Exception e) {
+			System.out.println("postXMLlogIn error");
+		}
+		return result;
+	}
+	
+	@POST
+	@Path("/signUpViaEmail")
+	// @Consumes("application/json")
+	// @Produces("application/json")
+	public String signUpViaEmail(@FormParam("userName") String _userName,
+			@FormParam("userPassw") String _userPassw) {
+
+		System.out.println("postXMLisUserExist  userName :" + _userName + "\n");
+
+		System.out.println("postXMLisUserExist  userPassw :" + _userPassw
+				+ "\n");
+				
+		String result  = null;
+		try {			
+			ProjectManager projectManager = new ProjectManager();
+			result = projectManager.signUpViaEmail(_userName, _userPassw);
+			
+			System.out.println(result);
+
+		} catch (Exception e) {
+			System.out.println("postXMLlogIn error");
+		}
+		return result;
+	}
+	
+	@POST
+	@Path("/getNonInvited")
+	public String getNonInvited(@FormParam("usersList") String _usersList) {
+
+		System.out.println("postXMLisUserExist  usersList :" + _usersList + "\n");
+
+		
+				
+		String result  = null;
+		try {			
+			ProjectManager projectManager = new ProjectManager();
+			result = projectManager.getNonInvited(_usersList);
+			
+			System.out.println(result);
+
+		} catch (Exception e) {
+			System.out.println("postXMLlogIn error");
+		}
+		return result;
+	} 
 	// @GET
 	// @Path("/GetFeeds")
 	// @Produces("application/json")

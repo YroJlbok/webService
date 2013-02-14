@@ -20,11 +20,13 @@ import java.util.List;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
+import com.google.gson.Gson;
 import com.mysql.jdbc.Statement;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.PayloadBuilder;
 
+import dto.FacebookID;
 import dto.FeedObjects;
 
 public class Project {
@@ -162,13 +164,13 @@ public class Project {
 		}
 	}
 
-	public ArrayList<FeedObjects> isUserExist(Connection connection,
+	public String isUserExist(Connection connection,
 			String _userName, String _userPassw) throws Exception {
 
-		System.out.println(this.getClass().getName() + " " + "isUserExist"
+		System.out.println(this.getClass().getName() + " " + "isUserExist"   
 				+ " _userName = " + _userName + " , _userPassw =" + _userPassw);
 
-		ArrayList<FeedObjects> feedData = new ArrayList<FeedObjects>();
+		String result = "-1";
 
 		try {
 			// String uname = request.getParameter("uname");
@@ -179,18 +181,163 @@ public class Project {
 							+ _userPassw
 							+ "' and userActiveStatus=1");
 			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				FeedObjects feedObject = new FeedObjects();
-				feedObject.setUserid(rs.getString("UserID"));
-
-				feedData.add(feedObject);
+			System.out.println("SELECT UserID,userEmail,userPassw from sixeyeGamesUsers WHERE userEmail='"
+					+ _userName
+					+ "' and userPassw='"
+					+ _userPassw
+					+ "' and userActiveStatus=1");
+			if(rs.next()) {
+				result = "0";
 			}
-			return feedData;
+			return result;
 		} catch (Exception e) {
 			throw e;
 		}
 	}
+	
+	public String logIn(Connection connection,
+			String _userName, 
+			String _userPassw,
+			String _userRegType) throws Exception {
 
+		System.out.println(this.getClass().getName() + " " + "logIn"
+				+ " _userName = " + _userName + " , _userPassw =" + _userPassw + " , _userRegType =" + _userRegType);
+
+		
+
+		try {
+			// String uname = request.getParameter("uname");
+			PreparedStatement ps = connection
+					.prepareStatement("SELECT UserID,userEmail,userPassw,userRegType from sixeyeGamesUsers WHERE userEmail='"
+							+ _userName
+							+ "' and userPassw='"
+							+ _userPassw
+							+ "' and userRegType="
+							+ _userRegType
+							+ " and userActiveStatus=1");
+			ResultSet rs = ps.executeQuery();
+			if(rs.next())
+			{
+				System.out.println(" logIn : user exist");
+				return "0";
+				
+			}
+			else
+			{
+				System.out.println(" logIn : user not exist");
+				
+				if(_userRegType.equalsIgnoreCase("0"))
+				{
+					String sqlQuery = "INSERT INTO sixeyegamesusers VALUES(null,?,?,?,?,?) ";
+
+					ps = connection.prepareStatement(sqlQuery,
+							PreparedStatement.RETURN_GENERATED_KEYS);
+
+					ps.setString(1, _userName);
+
+					ps.setString(2, _userName);
+
+					ps.setString(3, _userPassw);
+
+					ps.setBoolean(4, true);
+					
+					ps.setInt(5, 0);
+					// test if device exist
+					int row = 0;
+					if (row != 0) {
+						System.out.println(" logIn : created a new User");
+					} else {
+						System.out.println(" logIn : failed to create a new User");
+					}
+					try {
+						row = ps.executeUpdate();
+					} catch (SQLException e) {
+						System.out.println("e.getMessage() = " + e.getMessage());
+						return "-1";
+					}
+					
+					return "0";
+					
+				}
+				return "-1";
+			}
+				
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public String getNonInvited(Connection connection,
+			String _usersList) throws Exception {
+		
+		FacebookID[] userId = new Gson().fromJson(_usersList, FacebookID[].class);
+	    for (int counter = 0; counter < userId.length; counter++) {
+	      System.out.println(userId[counter].getUserID());
+	    }
+		//System.out.println(result);
+		//feeds = gson.toJson(feedData);
+		return "";
+		
+	}
+	public String signUpViaEmail(Connection connection,
+			String _userName, 
+			String _userPassw) throws Exception {
+
+		System.out.println(this.getClass().getName() + " " + "signUpViaEmail"
+				+ " _userName = " + _userName + " , _userPassw =" + _userPassw);
+		
+
+		try {
+			PreparedStatement ps = connection
+					.prepareStatement("SELECT UserID,userEmail,userPassw,userRegType from sixeyeGamesUsers WHERE userEmail='"
+							+ _userName						
+							+ "' and userActiveStatus=1");
+			ResultSet rs = ps.executeQuery();
+			if(rs.next())
+			{
+				System.out.println(" signUpViaEmail : user exist");
+				return "-1";
+				
+			}
+			else
+			{
+				System.out.println(" signUpViaEmail : user not exist");							
+
+				String sqlQuery = "INSERT INTO sixeyegamesusers VALUES(null,?,?,?,?,?) ";
+
+				ps = connection.prepareStatement(sqlQuery,
+						PreparedStatement.RETURN_GENERATED_KEYS);
+
+				ps.setString(1, _userName);
+
+				ps.setString(2, _userName);
+
+				ps.setString(3, _userPassw);
+
+				ps.setBoolean(4, true);
+				
+				ps.setInt(5, 1);
+				// test if device exist
+				int row = 0;
+				if (row != 0) {
+					System.out.println(" signUpViaEmail : created a new User");
+				} else {
+					System.out.println(" signUpViaEmail : failed to create a new User");
+				}
+				try {
+					row = ps.executeUpdate();
+				} catch (SQLException e) {
+					System.out.println("e.getMessage() = " + e.getMessage());
+					return "-1";
+				}				
+				return "0";							
+			}				
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
 	public ArrayList<FeedObjects> signUp(Connection connection,
 			String _userName, String _userPassw, String _deviceType,
 			String _deviceID, String _deviceSerialID, String _deviceDesc)
@@ -258,7 +405,7 @@ public class Project {
 				System.out.println("e.getMessage() = " + e.getMessage());
 			}
 
-			return isUserExist(connection, _userName, _userPassw);
+			//return isUserExist(connection, _userName, _userPassw);
 		}
 
 		return null;
